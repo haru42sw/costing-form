@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>간편 견적서 v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#111827;--ink2:#374151;--ink3:#6b7280;--ink4:#9ca3af;
+  --sl:#f8fafc;--sl2:#f1f5f9;--sl3:#e2e8f0;--sl4:#cbd5e1;
+  --blue:#2563eb;--blue2:#3b82f6;--bbg:#eff6ff;--bbd:#bfdbfe;
+  --grn:#059669;--gbg:#ecfdf5;--gbd:#a7f3d0;
+  --amb:#d97706;--abg:#fffbeb;--abd:#fde68a;
+  --vio:#7c3aed;--vbg:#f5f3ff;--vbd:#c4b5fd;
+  --rose:#e11d48;--cyan:#0891b2;--cbg:#ecfeff;--cbd:#a5f3fc;
+  --w:#fff;
+  --kr:'IBM Plex Sans KR',system-ui,sans-serif;
+  --num:'JetBrains Mono','SF Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{touch-action:manipulation;}
+body{font-family:var(--kr);background:var(--sl);color:var(--ink);-webkit-text-size-adjust:100%;line-height:1.5;}
+button{touch-action:manipulation;cursor:pointer;-webkit-user-select:none;user-select:none;font-family:var(--kr);}
+input,select{font-family:var(--kr);font-size:16px;-webkit-appearance:none;appearance:none;}
+
+.login{position:fixed;inset:0;background:var(--ink);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;}
+.login.hide{display:none;}
+.lbox{background:var(--w);border-radius:20px;padding:40px 28px 32px;max-width:340px;width:100%;text-align:center;}
+.lbox h2{font-size:22px;font-weight:700;margin-bottom:2px;}
+.lbox p{font-size:13px;color:var(--ink3);margin-bottom:24px;}
+.lpw{width:100%;border:2px solid var(--sl3);border-radius:12px;padding:14px;font-size:20px;font-family:var(--num);text-align:center;letter-spacing:10px;outline:none;}
+.lpw:focus{border-color:var(--blue);}
+.lgo{width:100%;padding:14px;background:var(--ink);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;margin-top:12px;}
+.lgo:active{opacity:.7;}
+.lerr{color:var(--rose);font-size:12px;font-weight:600;margin-top:10px;min-height:18px;}
+
+header{background:var(--w);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;border-bottom:1px solid var(--sl3);box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.hl{display:flex;align-items:center;gap:10px;}
+.hm{width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--w);line-height:1;}
+.ht{font-size:15px;font-weight:700;}.hsb{font-size:10px;color:var(--ink4);margin-top:1px;}
+.rtag{display:inline-flex;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;margin-left:6px;vertical-align:middle;}
+.rtag.a{background:var(--abg);color:var(--amb);border:1px solid var(--abd);}
+.rtag.s{background:var(--sl2);color:var(--ink3);border:1px solid var(--sl3);}
+.hr{display:flex;gap:6px;}
+.hb{width:36px;height:36px;border:1px solid var(--sl3);border-radius:8px;background:var(--w);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.hb:active{background:var(--sl2);}
+
+.wrap{padding:12px;display:flex;flex-direction:column;gap:14px;padding-bottom:80px;}
+.sec{background:var(--w);border-radius:14px;border:1px solid var(--sl3);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.sec-hd{padding:12px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--sl3);background:var(--sl);}
+.sec-ico{font-size:16px;}.sec-nm{font-size:14px;font-weight:700;color:var(--ink);flex:1;}
+.sec-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;}
+.sec-bd{padding:12px 14px;}
+
+.row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:flex-end;}
+.row:last-child{margin-bottom:0;}
+.fi{flex:1;min-width:70px;}
+.fi label{display:block;font-size:9px;font-weight:600;color:var(--ink4);letter-spacing:.3px;text-transform:uppercase;margin-bottom:3px;}
+.fi input,.fi select{width:100%;border:1.5px solid var(--sl3);border-radius:8px;padding:8px 6px;font-size:16px;color:var(--ink);background:var(--w);outline:none;text-align:center;}
+.fi input[type="tel"]{font-family:var(--num);font-weight:500;}
+.fi input:focus,.fi select:focus{border-color:var(--blue);background:var(--bbg);}
+.fi select{text-align:left;padding-left:10px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 5 5-5' stroke='%239ca3af' stroke-width='1.2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;}
+.fi input:disabled{background:var(--sl2);color:var(--ink4);}
+
+.su{border:1.5px solid var(--sl3);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--w);}
+.su-hd{display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+.su-num{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;}
+.su-nm{font-size:11px;font-weight:600;color:var(--ink2);flex:1;}
+.su-del{width:26px;height:26px;border:none;background:none;color:var(--ink4);font-size:14px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.su-del:active{background:#fee2e2;color:var(--rose);}
+
+.chip-row{display:flex;gap:6px;margin-bottom:8px;}
+.chip{flex:1;padding:7px;border:1.5px solid var(--sl3);border-radius:8px;background:var(--w);font-size:16px;font-weight:600;color:var(--ink3);text-align:center;}
+.chip.on{border-color:var(--blue);background:var(--bbg);color:var(--blue);}
+.chip:active{opacity:.7;}
+
+.step{display:flex;align-items:center;border:1.5px solid var(--sl3);border-radius:8px;overflow:hidden;height:40px;}
+.step button{width:42px;height:100%;border:none;background:var(--sl);font-size:18px;font-weight:700;color:var(--blue);display:flex;align-items:center;justify-content:center;}
+.step button:active{background:var(--sl3);}
+.step .sv{flex:1;text-align:center;font-family:var(--num);font-size:16px;font-weight:700;color:var(--ink);background:var(--w);}
+
+.auto{margin-top:8px;padding-top:8px;border-top:1.5px dashed var(--sl3);}
+.auto-hd{font-size:10px;font-weight:700;color:var(--ink4);letter-spacing:.3px;margin-bottom:6px;}
+.auto-grid{display:flex;flex-wrap:wrap;gap:5px;}
+.abx{flex:1;min-width:calc(50% - 3px);border-radius:7px;padding:6px 8px;}
+.abx .al{font-size:8px;font-weight:600;margin-bottom:1px;}
+.abx .av{font-family:var(--num);font-size:12px;font-weight:700;}
+.abx.body{background:var(--sl2);}.abx.body .al{color:var(--ink4);}.abx.body .av{color:var(--ink);}
+.abx.door{background:var(--bbg);border:1px solid var(--bbd);}.abx.door .al{color:var(--blue2);}.abx.door .av{color:var(--blue);}
+.abx.hw{background:var(--abg);border:1px solid var(--abd);}.abx.hw .al{color:var(--amb);}.abx.hw .av{color:var(--amb);}
+.abx.shelf{background:var(--vbg);border:1px solid var(--vbd);}.abx.shelf .al{color:var(--vio);}.abx.shelf .av{color:var(--vio);}
+.abx.mat{background:var(--gbg);border:1px solid var(--gbd);}.abx.mat .al{color:var(--grn);}.abx.mat .av{color:var(--grn);}
+.abx.dr{background:var(--cbg);border:1px solid var(--cbd);}.abx.dr .al{color:var(--cyan);}.abx.dr .av{color:var(--cyan);}
+
+.u-add{width:100%;padding:10px;background:var(--w);border:1.5px dashed var(--sl3);border-radius:8px;font-size:16px;font-weight:500;color:var(--ink4);text-align:center;margin-top:4px;}
+.u-add:active{border-color:var(--blue);color:var(--blue);background:var(--bbg);}
+
+.mat-row{display:flex;gap:6px;margin-bottom:8px;align-items:flex-end;}
+.mat-row .fi{min-width:55px;}
+.mat-del{width:30px;height:40px;border:none;background:none;color:var(--ink4);font-size:15px;display:flex;align-items:center;justify-content:center;border-radius:6px;flex-shrink:0;}
+.mat-del:active{background:#fee2e2;color:var(--rose);}
+.mat-add{width:100%;padding:10px;background:var(--w);border:1.5px dashed var(--sl3);border-radius:8px;font-size:16px;font-weight:500;color:var(--ink4);text-align:center;margin-top:4px;}
+.mat-add:active{border-color:var(--blue);color:var(--blue);background:var(--bbg);}
+
+.sum-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.sum-tbl th{text-align:left;font-size:10px;font-weight:600;color:var(--ink4);padding:6px 8px;border-bottom:1px solid var(--sl3);}
+.sum-tbl td{padding:6px 8px;border-bottom:1px solid var(--sl2);}
+.sum-tbl td:first-child{color:var(--ink2);font-weight:500;}
+.sum-tbl td:nth-child(2){font-family:var(--num);font-weight:700;color:var(--ink);text-align:right;}
+.sum-tbl td:nth-child(3){font-family:var(--num);font-weight:600;color:var(--blue);text-align:right;}
+.sum-total{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--ink);border-radius:10px;margin-top:12px;}
+.sum-total .stl{font-size:10px;color:rgba(255,255,255,.5);font-weight:600;}
+.sum-total .stv{font-family:var(--num);font-size:20px;font-weight:700;color:#fbbf24;}
+.sum-row{display:flex;justify-content:space-between;padding:6px 10px;font-size:12px;color:var(--ink3);}
+.sum-row b{color:var(--ink);font-family:var(--num);}
+
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--ink);color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .25s,transform .25s;z-index:9999;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.cfm{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);color:#fff;padding:16px;z-index:2000;border-radius:16px 16px 0 0;}
+.cfm.show{display:block;}
+.cfm p{font-size:15px;font-weight:600;text-align:center;margin-bottom:14px;}
+.cfm-b{display:flex;gap:10px;}
+.cfm-b button{flex:1;padding:12px;border-radius:10px;border:none;font-size:16px;font-weight:700;}
+.cfm-y{background:var(--rose);color:#fff;}.cfm-n{background:rgba(255,255,255,.12);color:#fff;}
+
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000;align-items:center;justify-content:center;padding:24px;}
+.modal.show{display:flex;}
+.mbox{background:var(--w);border-radius:16px;padding:28px 24px;max-width:340px;width:100%;}
+.mbox h3{font-size:17px;font-weight:700;text-align:center;margin-bottom:20px;}
+.mf{margin-bottom:14px;}
+.mf label{display:block;font-size:11px;font-weight:600;color:var(--ink3);margin-bottom:4px;}
+.mf input{width:100%;border:1.5px solid var(--sl3);border-radius:8px;padding:10px;font-size:16px;font-family:var(--num);text-align:center;letter-spacing:4px;outline:none;}
+.mf input:focus{border-color:var(--blue);}
+.mmsg{font-size:12px;text-align:center;margin-bottom:10px;min-height:18px;font-weight:600;}
+.mmsg.ok{color:var(--grn);}.mmsg.err{color:var(--rose);}
+.mb{display:flex;gap:8px;}
+.mb button{flex:1;padding:12px;border:none;border-radius:10px;font-size:16px;font-weight:600;}
+.msv{background:var(--ink);color:#fff;}.mcl{background:var(--sl2);color:var(--ink2);}
+.mout{width:100%;padding:10px;border:1.5px solid var(--rose);border-radius:10px;background:none;font-size:16px;font-weight:600;color:var(--rose);margin-top:12px;}
+
+@media print{header,.hr,.cfm,.toast,.modal,.u-add,.mat-add,.mat-del,.su-del{display:none!important;}body{background:#fff;}.sec{box-shadow:none;border:1px solid #ccc;page-break-inside:avoid;}}
+</style>
+</head>
+<body ontouchstart="">
+<div class="login" id="LS"><div class="lbox"><div style="font-size:40px;margin-bottom:12px;">📋</div><h2>간편 견적서</h2><p>에스브로 · 비밀번호를 입력하세요</p><input class="lpw" id="lpw" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off"><button class="lgo" onclick="T.login()">로그인</button><div class="lerr" id="lerr"></div></div></div>
+<div class="modal" id="setM"><div class="mbox"><h3>⚙️ 비밀번호 설정</h3><div class="mf"><label>관리자 비밀번호</label><input type="password" id="sA" inputmode="numeric" maxlength="4" placeholder="••••"></div><div class="mf"><label>직원 비밀번호</label><input type="password" id="sS" inputmode="numeric" maxlength="4" placeholder="••••"></div><div class="mmsg" id="smsg"></div><div class="mb"><button class="mcl" onclick="T.setClose()">닫기</button><button class="msv" onclick="T.setSave()">저장</button></div><button class="mout" onclick="T.logout()">로그아웃</button></div></div>
+
+<div id="app" style="display:none;">
+<header><div class="hl"><div class="hm">간편</div><div><div class="ht">간편 견적서 <span class="rtag" id="rtag"></span></div><div class="hsb">에스브로 S-bro · 러프 견적</div></div></div><div class="hr"><button class="hb" id="bSet" onclick="T.setOpen()" style="display:none;">⚙️</button><button class="hb" onclick="T.clear()">🗑</button><button class="hb" onclick="T.print()">🖨</button></div></header>
+
+<div class="wrap">
+<div class="sec"><div class="sec-hd"><span class="sec-ico">📐</span><span class="sec-nm">① 벽 치수 (mm)</span></div>
+<div class="sec-bd"><div class="row"><div class="fi"><label>가로 W</label><input type="tel" inputmode="numeric" id="wW" placeholder="3600" oninput="T.up()"></div><div class="fi"><label>세로 D</label><input type="tel" inputmode="numeric" id="wD" placeholder="650" oninput="T.up()"></div><div class="fi"><label>높이 H</label><input type="tel" inputmode="numeric" id="wH" placeholder="2400" oninput="T.up()"></div></div>
+<div class="row" id="marginRow" style="display:none;"><div class="fi" style="max-width:120px"><label>공통 마진율 %</label><input type="tel" inputmode="numeric" id="gMg" value="20" oninput="T.up()"></div></div>
+</div></div>
+
+<div class="sec"><div class="sec-hd"><span class="sec-ico">🔷</span><span class="sec-nm">상부장</span><span class="sec-tag" style="background:var(--bbg);color:var(--blue);">UPPER</span></div>
+<div class="sec-bd"><div class="row"><div class="fi"><label>공통 D</label><input type="tel" inputmode="numeric" id="uD" placeholder="350" oninput="T.up()"></div><div class="fi"><label>공통 H</label><input type="tel" inputmode="numeric" id="uH" placeholder="800" oninput="T.up()"></div></div>
+<div id="upperList"></div><button class="u-add" onclick="T.addU('upper')">＋ 상부장 추가</button>
+</div></div>
+
+<div class="sec"><div class="sec-hd"><span class="sec-ico">🟢</span><span class="sec-nm">하부장</span><span class="sec-tag" style="background:var(--gbg);color:var(--grn);">LOWER</span></div>
+<div class="sec-bd"><div class="row"><div class="fi"><label>공통 D</label><input type="tel" inputmode="numeric" id="lD" placeholder="650" oninput="T.up()"></div><div class="fi"><label>공통 H</label><input type="tel" inputmode="numeric" id="lH" placeholder="900" oninput="T.up()"></div></div>
+<div id="lowerList"></div><button class="u-add" onclick="T.addU('lower')">＋ 하부장 추가</button>
+</div></div>
+
+<div class="sec"><div class="sec-hd"><span class="sec-ico">🟠</span><span class="sec-nm">키큰장</span><span class="sec-tag" style="background:var(--abg);color:var(--amb);">TALL</span></div>
+<div class="sec-bd"><div class="row"><div class="fi"><label>공통 D</label><input type="tel" inputmode="numeric" id="tD" placeholder="650" oninput="T.up()"></div><div class="fi"><label>공통 H</label><input type="tel" inputmode="numeric" id="tH" placeholder="2400" oninput="T.up()"></div></div>
+<div id="tallList"></div><button class="u-add" onclick="T.addU('tall')">＋ 키큰장 추가</button>
+</div></div>
+
+<div class="sec"><div class="sec-hd"><span class="sec-ico">🟣</span><span class="sec-nm">오픈장</span><span class="sec-tag" style="background:var(--vbg);color:var(--vio);">OPEN</span></div>
+<div class="sec-bd"><div class="row"><div class="fi"><label>공통 D</label><input type="tel" inputmode="numeric" id="oD" placeholder="350" oninput="T.up()"></div><div class="fi"><label>공통 H</label><input type="tel" inputmode="numeric" id="oH" placeholder="800" oninput="T.up()"></div></div>
+<div id="openList"></div><button class="u-add" onclick="T.addU('open')">＋ 오픈장 추가</button>
+</div></div>
+
+<div class="sec"><div class="sec-hd"><span class="sec-ico">🎨</span><span class="sec-nm">⑥ 마감재</span></div>
+<div class="sec-bd">
+<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:700;color:var(--grn);margin-bottom:6px;">EP (엔드패널)</div><div id="epList"></div><button class="mat-add" onclick="T.addMat('ep')">＋ EP 추가</button></div>
+<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:700;color:var(--cyan);margin-bottom:6px;">ㄴ목찬넬 (64×36 고정)</div><div id="chList"></div><button class="mat-add" onclick="T.addMat('ch')">＋ ㄴ목찬넬 추가</button></div>
+<div><div style="font-size:11px;font-weight:700;color:var(--amb);margin-bottom:6px;">PL (걸레받이)</div><div id="plList"></div><button class="mat-add" onclick="T.addMat('pl')">＋ PL 추가</button></div>
+</div></div>
+
+<div class="sec"><div class="sec-hd"><span class="sec-ico">📊</span><span class="sec-nm">⑦ 종합 요약</span></div>
+<div class="sec-bd" id="summary"></div></div>
+</div></div>
+
+<div class="cfm" id="cfm"><p>⚠️ 모든 입력을 초기화할까요?</p><div class="cfm-b"><button class="cfm-n" onclick="T.cfmN()">취소</button><button class="cfm-y" onclick="T.cfmY()">초기화</button></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+var PWA='0980',PWS='0000',ADM=false;
+/* 상수 */
+var DT=19,ET=19,TT=12,LH=100,BT=18;
+var G_STD=3,G_CH=25,TOP_O=3,DCLR=4,DMID=3;
+var SH_S=1,SH_B=31,MDF_D=660,MDF_T=.019;
+var FD={a:49462,b:4631},FE={a:47547,b:5157};
+var MINP=7000,CHS={l:2420,p:17000};
+var HWP={h:4550,l:1200,b:10000};
+var RAIL_P={under:35000,intivo:60500,legra:91900};
+var RSIZES=[250,300,350,400,450,500,600];
+var uid=1;
+var UL={upper:[],lower:[],tall:[],open:[]};
+var epRows=[],chRows=[],plRows=[];
+
+function fm(n){return n?Math.round(n).toLocaleString('ko-KR'):'0';}
+function gv(id){var e=document.getElementById(id);return e?parseInt(e.value)||0:0;}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
+function mPrice(f,a){return Math.max(MINP,Math.round((f.b+f.a*a)/1000)*1000);}
+function chPrice(l){return Math.max(MINP,Math.round(CHS.p*(l/CHS.l)/1000)*1000);}
+function hcnt(w){if(w<4)return 1;if(w<6)return 2;if(w<12)return 3;if(w<17)return 4;if(w<22)return 5;return 6;}
+function legCnt(w){return w<=600?4:w<=1200?5:6;}
+/* ★ 상부장 이동선반: 간격 250mm */
+function uShelf(bH){return bH>=200?Math.floor(bH/250):0;}
+/* 하부장·키큰장 이동선반: 간격 350mm */
+function lShelf(bH){return bH>=300?Math.max(0,Math.floor(bH/350)-1):0;}
+function autoRail(bd){var b=250;for(var i=0;i<RSIZES.length;i++)if(RSIZES[i]<=bd)b=RSIZES[i];return b;}
+function getU(type,id){var a=UL[type];for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null;}
+
+/* 로그인 */
+function doLogin(){var pw=document.getElementById('lpw').value;if(pw===PWA){ADM=true;goApp();}else if(pw===PWS){ADM=false;goApp();}else{document.getElementById('lerr').textContent='비밀번호가 일치하지 않습니다';document.getElementById('lpw').value='';document.getElementById('lpw').focus();}}
+function goApp(){document.getElementById('LS').classList.add('hide');document.getElementById('app').style.display='';var b=document.getElementById('rtag');if(ADM){b.className='rtag a';b.textContent='A';}else{b.className='rtag s';b.textContent='S';}document.getElementById('marginRow').style.display=ADM?'flex':'none';document.getElementById('bSet').style.display=ADM?'':'none';renderAll();}
+
+/* ══════════════════════════════════════════
+   renderUnits — 유형별 서브유닛 HTML 생성
+   ══════════════════════════════════════════ */
+var CLR={upper:'var(--blue)',lower:'var(--grn)',tall:'var(--amb)',open:'var(--vio)'};
+var NM={upper:'상부장',lower:'하부장',tall:'키큰장',open:'오픈장'};
+
+function renderUnits(type){
+  var list=UL[type],el=document.getElementById(type+'List');
+  if(!el)return;
+  var h='';
+  for(var i=0;i<list.length;i++){
+    var u=list[i],n=i+1,I=u.id;
+    h+='<div class="su">';
+    h+='<div class="su-hd"><div class="su-num" style="background:'+CLR[type]+'">'+n+'</div>';
+    h+='<span class="su-nm">'+NM[type]+' #'+n+'</span>';
+    h+='<button class="su-del" onclick="T.delU(\''+type+'\','+I+')">✕</button></div>';
+    /* 공통: W, 수량 */
+    h+='<div class="row">';
+    h+='<div class="fi"><label>W (가로)</label><input type="tel" inputmode="numeric" placeholder="900" value="'+(u.w||'')+'" oninput="T.uv(\''+type+'\','+I+',\'w\',this.value)"></div>';
+    h+='<div class="fi" style="max-width:80px"><label>수량(대)</label><input type="tel" inputmode="numeric" value="'+(u.q||'')+'" oninput="T.uv(\''+type+'\','+I+',\'q\',this.value)"></div>';
+    h+='</div>';
+
+    /* ── 상부장 ── */
+    if(type==='upper'){
+      h+='<div class="row">';
+      h+='<div class="fi"><label>도어 타입</label><select onchange="T.uv(\'upper\','+I+',\'dt\',this.value)"><option value="swing"'+(u.dt==='swing'?' selected':'')+'>여닫이</option><option value="flap"'+(u.dt==='flap'?' selected':'')+'>플랩</option></select></div>';
+      h+='<div class="fi"><label>도어 배치</label><select onchange="T.uv(\'upper\','+I+',\'ds\',this.value)"><option value="1"'+(u.ds==1?' selected':'')+'>한짝 (1)</option><option value="2"'+(u.ds==2?' selected':'')+'>양짝 (2)</option></select></div>';
+      h+='</div>';
+    }
+    /* ── 하부장 ── */
+    else if(type==='lower'){
+      h+='<div class="chip-row">';
+      h+='<button class="chip'+(u.sub==='std'?' on':'')+'" onclick="T.uv(\'lower\','+I+',\'sub\',\'std\')">일반형</button>';
+      h+='<button class="chip'+(u.sub==='ch'?' on':'')+'" onclick="T.uv(\'lower\','+I+',\'sub\',\'ch\')">목찬넬</button>';
+      h+='</div>';
+      h+='<div class="row">';
+      h+='<div class="fi"><label>도어 타입</label><select onchange="T.uv(\'lower\','+I+',\'dt\',this.value)"><option value="swing"'+(u.dt==='swing'?' selected':'')+'>여닫이</option><option value="drawer"'+(u.dt==='drawer'?' selected':'')+'>서랍</option></select></div>';
+      if(u.dt==='swing'){
+        h+='<div class="fi"><label>도어 배치</label><select onchange="T.uv(\'lower\','+I+',\'ds\',this.value)"><option value="1"'+(u.ds==1?' selected':'')+'>한짝 (1)</option><option value="2"'+(u.ds==2?' selected':'')+'>양짝 (2)</option></select></div>';
+      } else {
+        h+='<div class="fi"><label>서랍 수량</label><div class="step"><button onclick="T.drA(\'lower\','+I+',-1)">−</button><div class="sv">'+(u.drN||3)+'</div><button onclick="T.drA(\'lower\','+I+',1)">+</button></div></div>';
+      }
+      h+='</div>';
+      if(u.dt==='drawer'){
+        h+='<div class="row"><div class="fi"><label>서랍 레일</label><select onchange="T.uv(\'lower\','+I+',\'rail\',this.value)"><option value="under"'+(u.rail==='under'?' selected':'')+'>언더레일</option><option value="intivo"'+(u.rail==='intivo'?' selected':'')+'>인티보/안타로</option><option value="legra"'+(u.rail==='legra'?' selected':'')+'>레그라박스</option></select></div></div>';
+      }
+    }
+    /* ── 키큰장 (여닫이만, 상하단수) ── */
+    else if(type==='tall'){
+      h+='<div class="chip-row">';
+      h+='<button class="chip'+(u.sub==='std'?' on':'')+'" onclick="T.uv(\'tall\','+I+',\'sub\',\'std\')">일반형</button>';
+      h+='<button class="chip'+(u.sub==='ch'?' on':'')+'" onclick="T.uv(\'tall\','+I+',\'sub\',\'ch\')">목찬넬</button>';
+      h+='</div>';
+      h+='<div class="row">';
+      h+='<div class="fi"><label>도어 배치</label><select onchange="T.uv(\'tall\','+I+',\'ds\',this.value)"><option value="1"'+(u.ds==1?' selected':'')+'>한짝 (1)</option><option value="2"'+(u.ds==2?' selected':'')+'>양짝 (2)</option></select></div>';
+      h+='<div class="fi"><label>상하 단수</label><select onchange="T.uv(\'tall\','+I+',\'dc\',this.value)"><option value="1"'+(u.dc==1?' selected':'')+'>1단</option><option value="2"'+(u.dc==2?' selected':'')+'>2단</option><option value="3"'+(u.dc==3?' selected':'')+'>3단</option></select></div>';
+      h+='</div>';
+    }
+    /* ── 오픈장 (이동선반 스테퍼 + 소재) ── */
+    else if(type==='open'){
+      h+='<div class="row">';
+      h+='<div class="fi"><label>이동선반 수량</label><div class="step"><button onclick="T.drA(\'open\','+I+',-1)">−</button><div class="sv">'+(u.sN!=null?u.sN:0)+'</div><button onclick="T.drA(\'open\','+I+',1)">+</button></div></div>';
+      h+='<div class="fi"><label>선반 소재</label><select onchange="T.uv(\'open\','+I+',\'sMat\',this.value)"><option value="body"'+(u.sMat==='body'?' selected':'')+'>몸통 동일</option><option value="glass"'+(u.sMat==='glass'?' selected':'')+'>강화유리 8T</option></select></div>';
+      h+='</div>';
+    }
+
+    /* 자동산출 영역 */
+    h+='<div class="auto" id="auto_'+type+'_'+I+'"></div>';
+    h+='</div>';
+  }
+  el.innerHTML=h;
+}
+
+/* ══════ 마감재 렌더링 ══════ */
+function renderMats(){
+  var h='';
+  for(var i=0;i<epRows.length;i++){var r=epRows[i];
+    h+='<div class="mat-row"><div class="fi"><label>W</label><input type="tel" inputmode="numeric" placeholder="100" data-mt="ep" data-mi="'+i+'" data-mk="w" value="'+(r.w||'')+'"></div><div class="fi"><label>H</label><input type="tel" inputmode="numeric" placeholder="2400" data-mt="ep" data-mi="'+i+'" data-mk="h" value="'+(r.h||'')+'"></div><div class="fi" style="max-width:60px"><label>수량</label><input type="tel" inputmode="numeric" placeholder="1" data-mt="ep" data-mi="'+i+'" data-mk="q" value="'+(r.q||'')+'"></div>';
+    if(ADM&&r.price&&r.q) h+='<div class="fi" style="max-width:80px"><label>단가</label><input value="'+fm(r.price)+'" disabled></div>';
+    h+='<button class="mat-del" onclick="T.delMat(\'ep\','+i+')">✕</button></div>';}
+  document.getElementById('epList').innerHTML=h;
+  h='';
+  for(var i=0;i<chRows.length;i++){var r=chRows[i];
+    h+='<div class="mat-row"><div class="fi"><label>외폭</label><input value="64" disabled></div><div class="fi"><label>내폭</label><input value="36" disabled></div><div class="fi"><label>길이</label><input type="tel" inputmode="numeric" placeholder="2400" data-mt="ch" data-mi="'+i+'" data-mk="l" value="'+(r.l||'')+'"></div><div class="fi" style="max-width:60px"><label>수량</label><input type="tel" inputmode="numeric" placeholder="1" data-mt="ch" data-mi="'+i+'" data-mk="q" value="'+(r.q||'')+'"></div>';
+    if(ADM&&r.price&&r.q) h+='<div class="fi" style="max-width:80px"><label>단가</label><input value="'+fm(r.price)+'" disabled></div>';
+    h+='<button class="mat-del" onclick="T.delMat(\'ch\','+i+')">✕</button></div>';}
+  document.getElementById('chList').innerHTML=h;
+  h='';
+  for(var i=0;i<plRows.length;i++){var r=plRows[i];
+    h+='<div class="mat-row"><div class="fi"><label>W</label><input type="tel" inputmode="numeric" placeholder="95" data-mt="pl" data-mi="'+i+'" data-mk="w" value="'+(r.w||'')+'"></div><div class="fi"><label>H</label><input type="tel" inputmode="numeric" placeholder="2400" data-mt="pl" data-mi="'+i+'" data-mk="h" value="'+(r.h||'')+'"></div><div class="fi" style="max-width:60px"><label>수량</label><input type="tel" inputmode="numeric" placeholder="1" data-mt="pl" data-mi="'+i+'" data-mk="q" value="'+(r.q||'')+'"></div>';
+    if(ADM&&r.price&&r.q) h+='<div class="fi" style="max-width:80px"><label>단가</label><input value="'+fm(r.price)+'" disabled></div>';
+    h+='<button class="mat-del" onclick="T.delMat(\'pl\','+i+')">✕</button></div>';}
+  document.getElementById('plList').innerHTML=h;
+}
+
+/* ★ 마감재 input 이벤트위임 (포커스 유지) */
+document.addEventListener('input',function(e){
+  var t=e.target;if(!t.dataset||!t.dataset.mt)return;
+  var arr=t.dataset.mt==='ep'?epRows:t.dataset.mt==='ch'?chRows:plRows;
+  var idx=parseInt(t.dataset.mi);
+  if(arr[idx]){
+    arr[idx][t.dataset.mk]=parseInt(t.value)||0;
+    var r=arr[idx];
+    if(t.dataset.mt==='ep'&&r.w&&r.h) r.price=mPrice(FE,(r.w/1000)*(r.h/1000));
+    else if(t.dataset.mt==='ch'&&r.l) r.price=chPrice(r.l);
+    else if(t.dataset.mt==='pl'&&r.w&&r.h) r.price=mPrice(FE,(r.w/1000)*(r.h/1000));
+  }
+  calcOnly();
+});
+
+/* ══════════════════════════════════════════
+   계산 엔진
+   ══════════════════════════════════════════ */
+function calcOnly(){
+  var mg=(gv('gMg')||20)/100;
+  var R={doorSwing:0,doorDrawer:0,hinge:0,bracket:0,leg:0,shelf:0,flap:0,rail:0,railCost:0,drBox:0,panel5:0,doorPrice:0,shelfPrice:0,panelPrice:0,hwCost:0};
+  var types=['upper','lower','tall','open'];
+  for(var t=0;t<types.length;t++){
+    var list=UL[types[t]];
+    for(var i=0;i<list.length;i++){
+      var u=list[i],ae=document.getElementById('auto_'+types[t]+'_'+u.id);
+      if(!ae)continue;
+      if(!u.q||!u.w){ae.innerHTML='';continue;}
+      if(types[t]==='upper') calcUpper(u,R,ae);
+      else if(types[t]==='lower') calcLower(u,R,ae);
+      else if(types[t]==='tall') calcTall(u,R,ae);
+      else calcOpen(u,R,ae);
+    }
+  }
+  var matCost=0;
+  for(var i=0;i<epRows.length;i++){var r=epRows[i];if(r.price&&r.q)matCost+=r.price*r.q;}
+  for(var i=0;i<chRows.length;i++){var r=chRows[i];if(r.price&&r.q)matCost+=r.price*r.q;}
+  for(var i=0;i<plRows.length;i++){var r=plRows[i];if(r.price&&r.q)matCost+=r.price*r.q;}
+  renderSummary(R,mg,matCost);
+}
+
+/* ── 상부장 ── */
+function calcUpper(u,R,ae){
+  var D=gv('uD'),H=gv('uH');
+  if(!H){ae.innerHTML='';return;}
+  var bD=D-DT-G_STD,bH=H-ET;
+  var ds=parseInt(u.ds)||1;
+  var dW=ds===2?Math.floor((u.w-DCLR-DMID)/2):u.w-DCLR;
+  var dH=H,dA=(dW/1000)*(dH/1000),wt=dA*MDF_T*MDF_D;
+  var hn=u.dt==='swing'?hcnt(wt):0;
+  var dPu=ds;
+  var sN=uShelf(bH); /* ★ 상부장 전용 간격 250mm */
+  var dpx=mPrice(FD,dA);
+  var sW=u.w-BT*2-SH_S,sD=bD-BT-SH_B;
+  var sA=(sW/1000)*(sD/1000),spx=mPrice(FE,sA);
+  var totalDoor=dPu*u.q;
+
+  R.bracket+=u.q;R.shelf+=sN*u.q;R.hwCost+=HWP.b*u.q;
+  R.doorPrice+=dpx*totalDoor;R.shelfPrice+=spx*sN*u.q;
+  if(u.dt==='swing'){
+    R.doorSwing+=totalDoor;R.hinge+=hn*totalDoor;R.hwCost+=HWP.h*hn*totalDoor;
+  } else {
+    /* ★ 플랩: 부속 = 도어 수량 */
+    R.flap+=totalDoor;R.doorSwing+=totalDoor;
+  }
+
+  var h='<div class="auto-hd">📋 '+(u.dt==='flap'?'플랩':'여닫이')+' ×'+u.q+'대</div><div class="auto-grid">';
+  h+='<div class="abx body"><div class="al">몸통</div><div class="av">'+u.w+'×'+Math.max(0,bD)+'×'+bH+'</div></div>';
+  h+='<div class="abx door"><div class="al">'+(u.dt==='flap'?'플랩':'도어')+' '+dW+'×'+dH+'</div><div class="av">'+totalDoor+'장 · '+dA.toFixed(3)+'m²'+(ADM?' @'+fm(dpx):'')+'</div></div>';
+  if(u.dt==='swing') h+='<div class="abx hw"><div class="al">경첩 ('+hn+'개/장)</div><div class="av">'+(hn*totalDoor)+'개</div></div>';
+  else h+='<div class="abx hw"><div class="al">플랩 부속</div><div class="av">'+totalDoor+'세트</div></div>';
+  h+='<div class="abx hw"><div class="al">브라켓</div><div class="av">'+u.q+'세트</div></div>';
+  h+='<div class="abx shelf"><div class="al">이동선반 '+sW+'×'+sD+'</div><div class="av">'+(sN*u.q)+'장'+(ADM?' @'+fm(spx):'')+'</div></div>';
+  h+='</div>';ae.innerHTML=h;
+}
+
+/* ── 하부장 ── */
+function calcLower(u,R,ae){
+  var D=gv('lD'),H=gv('lH');
+  if(!H){ae.innerHTML='';return;}
+  var lg=(u.sub==='ch')?G_CH:G_STD;
+  var bD=D-DT-G_STD-TOP_O,bH=H-TT-LH;
+  var avH=H-TT-lg-LH;
+  var isDr=u.dt==='drawer';
+  var dc=isDr?(u.drN||3):1;
+  var ds=isDr?1:(parseInt(u.ds)||1);
+  var dW=ds===2?Math.floor((u.w-DCLR-DMID)/2):u.w-DCLR;
+  var eH=dc>1?Math.floor((avH-(dc-1)*DMID)/dc):avH;
+  var dA=(dW/1000)*(eH/1000),wt=dA*MDF_T*MDF_D;
+  var hn=isDr?0:hcnt(wt);
+  var dPu=dc*ds,totalDoor=dPu*u.q;
+  var ll=legCnt(u.w);
+  var dpf=isDr?FE:FD,dpx=mPrice(dpf,dA);
+  var sN=isDr?0:lShelf(bH);
+  var sW=u.w-BT*2-SH_S,sD2=bD-BT-SH_B;
+  var sA=(sW/1000)*(sD2/1000),spx=mPrice(FE,sA);
+
+  R.leg+=ll*u.q;R.hwCost+=HWP.l*ll*u.q;
+  R.doorPrice+=dpx*totalDoor;
+  if(isDr){
+    R.doorDrawer+=totalDoor;
+    var rlc=RAIL_P[u.rail]||35000;
+    R.rail+=dc*u.q;R.railCost+=rlc*dc*u.q;R.hwCost+=rlc*dc*u.q;
+    R.drBox+=dc*u.q;
+  } else {
+    R.doorSwing+=totalDoor;R.hinge+=hn*totalDoor;R.hwCost+=HWP.h*hn*totalDoor;
+    R.shelf+=sN*u.q;R.shelfPrice+=spx*sN*u.q;
+  }
+
+  var h='<div class="auto-hd">📋 '+(isDr?'서랍 '+dc+'단':'여닫이')+' ×'+u.q+'대</div><div class="auto-grid">';
+  h+='<div class="abx body"><div class="al">몸통</div><div class="av">'+u.w+'×'+Math.max(0,bD)+'×'+bH+'</div></div>';
+  h+='<div class="abx door"><div class="al">'+(isDr?'서랍전면':'도어')+' '+dW+'×'+eH+'</div><div class="av">'+totalDoor+'장 · '+dA.toFixed(3)+'m²'+(ADM?' @'+fm(dpx):'')+'</div></div>';
+  if(!isDr){
+    h+='<div class="abx hw"><div class="al">경첩 ('+hn+'개/장)</div><div class="av">'+(hn*totalDoor)+'개</div></div>';
+  } else {
+    h+='<div class="abx hw"><div class="al">서랍레일 ('+(u.rail||'under')+')</div><div class="av">'+(dc*u.q)+'세트'+(ADM?' @'+fm(RAIL_P[u.rail]||35000):'')+'</div></div>';
+    var dbW=u.w-BT*2-12,dbRL=autoRail(bD);
+    h+='<div class="abx dr"><div class="al">서랍재 W'+dbW+'×D'+dbRL+'</div><div class="av">'+(dc*u.q)+'장</div></div>';
+  }
+  h+='<div class="abx hw"><div class="al">다릿발</div><div class="av">'+(ll*u.q)+'개</div></div>';
+  if(!isDr) h+='<div class="abx shelf"><div class="al">이동선반 '+sW+'×'+sD2+'</div><div class="av">'+(sN*u.q)+'장'+(ADM?' @'+fm(spx):'')+'</div></div>';
+  h+='</div>';ae.innerHTML=h;
+}
+
+/* ── 키큰장 (여닫이만, 상하단수) ── */
+function calcTall(u,R,ae){
+  var D=gv('tD'),H=gv('tH');
+  if(!H){ae.innerHTML='';return;}
+  var tg=(u.sub==='ch')?G_CH:G_STD;
+  var bD=D-DT-G_STD-TOP_O,bH=H-TT-LH;
+  var avH=H-TT-tg-LH;
+  var dc=parseInt(u.dc)||1;
+  var ds=parseInt(u.ds)||1;
+  var dW=ds===2?Math.floor((u.w-DCLR-DMID)/2):u.w-DCLR;
+  var eH=dc>1?Math.floor((avH-(dc-1)*DMID)/dc):avH;
+  var dA=(dW/1000)*(eH/1000),wt=dA*MDF_T*MDF_D;
+  var hn=hcnt(wt);
+  var dPu=dc*ds,totalDoor=dPu*u.q;
+  var ll=legCnt(u.w);
+  var dpx=mPrice(FD,dA);
+  var sN=lShelf(bH);
+  var sW=u.w-BT*2-SH_S,sD2=bD-BT-SH_B;
+  var sA=(sW/1000)*(sD2/1000),spx=mPrice(FE,sA);
+
+  R.leg+=ll*u.q;R.hwCost+=HWP.l*ll*u.q;
+  R.doorSwing+=totalDoor;R.hinge+=hn*totalDoor;R.hwCost+=HWP.h*hn*totalDoor;
+  R.doorPrice+=dpx*totalDoor;
+  R.shelf+=sN*u.q;R.shelfPrice+=spx*sN*u.q;
+
+  var h='<div class="auto-hd">📋 여닫이 '+dc+'단 ×'+u.q+'대</div><div class="auto-grid">';
+  h+='<div class="abx body"><div class="al">몸통</div><div class="av">'+u.w+'×'+Math.max(0,bD)+'×'+bH+'</div></div>';
+  h+='<div class="abx door"><div class="al">도어 '+dW+'×'+eH+'</div><div class="av">'+totalDoor+'장 · '+dA.toFixed(3)+'m²'+(ADM?' @'+fm(dpx):'')+'</div></div>';
+  h+='<div class="abx hw"><div class="al">경첩 ('+hn+'개/장)</div><div class="av">'+(hn*totalDoor)+'개</div></div>';
+  h+='<div class="abx hw"><div class="al">다릿발</div><div class="av">'+(ll*u.q)+'개</div></div>';
+  h+='<div class="abx shelf"><div class="al">이동선반 '+sW+'×'+sD2+'</div><div class="av">'+(sN*u.q)+'장'+(ADM?' @'+fm(spx):'')+'</div></div>';
+  h+='</div>';ae.innerHTML=h;
+}
+
+/* ── 오픈장 (선반 스테퍼 + 소재) ── */
+function calcOpen(u,R,ae){
+  var D=gv('oD'),H=gv('oH');
+  if(!D||!H){ae.innerHTML='';return;}
+  var pn=[{n:'천판',w:u.w,h:D},{n:'지판',w:u.w,h:D},{n:'좌측판',w:D,h:H},{n:'우측판',w:D,h:H},{n:'후판',w:u.w,h:H}];
+  var tpc=0;
+  for(var j=0;j<pn.length;j++){pn[j].a=(pn[j].w/1000)*(pn[j].h/1000);pn[j].p=mPrice(FE,pn[j].a);tpc+=pn[j].p;}
+  R.panel5+=5*u.q;R.panelPrice+=tpc*u.q;
+
+  var sN=u.sN||0;
+  var osW=u.w-DT*2-SH_S,osD=D-DT-SH_B;
+  var osA=(osW/1000)*(osD/1000);
+  /* 소재별 단가: 강화유리 8T는 별도 (추후), 몸통동일은 EP 회귀식 */
+  var isGlass=(u.sMat==='glass');
+  var osp=isGlass?0:mPrice(FE,osA);
+  R.shelf+=sN*u.q;
+  if(!isGlass) R.shelfPrice+=osp*sN*u.q;
+
+  var h='<div class="auto-hd">📋 오픈장 ×'+u.q+'대</div><div class="auto-grid">';
+  for(var j=0;j<pn.length;j++) h+='<div class="abx mat"><div class="al">'+pn[j].n+' '+pn[j].w+'×'+pn[j].h+'</div><div class="av">'+pn[j].a.toFixed(3)+'m²'+(ADM?' '+fm(pn[j].p)+'원':'')+'</div></div>';
+  h+='<div class="abx shelf"><div class="al">이동선반 '+osW+'×'+osD+' ('+(isGlass?'강화유리 8T':'몸통동일')+')</div><div class="av">'+(sN*u.q)+'장'+(ADM&&!isGlass?' @'+fm(osp):'')+(isGlass?' (추후)':'')+'</div></div>';
+  h+='</div>';ae.innerHTML=h;
+}
+
+/* ── 종합 요약 ── */
+function renderSummary(R,mg,matCost){
+  var tc=R.doorPrice+R.hwCost+R.shelfPrice+R.panelPrice+matCost;
+  var sp=Math.round(tc*(1+mg)),vat=Math.round(sp*.1);
+  var sm=document.getElementById('summary');
+  var h='<table class="sum-tbl"><tr><th>항목</th><th>수량</th>'+(ADM?'<th>비용</th>':'')+'</tr>';
+  if(R.doorSwing)h+='<tr><td>도어 (여닫이/플랩)</td><td>'+R.doorSwing+'장</td>'+(ADM?'<td>'+fm(R.doorPrice)+'원</td>':'')+'</tr>';
+  if(R.doorDrawer)h+='<tr><td>서랍전면</td><td>'+R.doorDrawer+'장</td>'+(ADM?'<td>포함</td>':'')+'</tr>';
+  if(R.hinge)h+='<tr><td>경첩</td><td>'+R.hinge+'개</td>'+(ADM?'<td>'+fm(HWP.h*R.hinge)+'원</td>':'')+'</tr>';
+  if(R.flap)h+='<tr><td>플랩 부속</td><td>'+R.flap+'세트</td>'+(ADM?'<td>추후</td>':'')+'</tr>';
+  if(R.bracket)h+='<tr><td>브라켓 (상부장)</td><td>'+R.bracket+'세트</td>'+(ADM?'<td>'+fm(HWP.b*R.bracket)+'원</td>':'')+'</tr>';
+  if(R.leg)h+='<tr><td>다릿발</td><td>'+R.leg+'개</td>'+(ADM?'<td>'+fm(HWP.l*R.leg)+'원</td>':'')+'</tr>';
+  if(R.rail)h+='<tr><td>서랍레일</td><td>'+R.rail+'세트</td>'+(ADM?'<td>'+fm(R.railCost)+'원</td>':'')+'</tr>';
+  if(R.shelf)h+='<tr><td>이동선반</td><td>'+R.shelf+'장</td>'+(ADM?'<td>'+fm(R.shelfPrice)+'원</td>':'')+'</tr>';
+  if(R.drBox)h+='<tr><td>서랍재</td><td>'+R.drBox+'장</td>'+(ADM?'<td>추후(몸통)</td>':'')+'</tr>';
+  if(R.panel5)h+='<tr><td>오픈장 판재</td><td>'+R.panel5+'장</td>'+(ADM?'<td>'+fm(R.panelPrice)+'원</td>':'')+'</tr>';
+  var epT=0,chT=0,plT=0,epC=0,chC=0,plC=0;
+  for(var i=0;i<epRows.length;i++){if(epRows[i].price&&epRows[i].q){epT+=epRows[i].price*epRows[i].q;epC+=epRows[i].q;}}
+  for(var i=0;i<chRows.length;i++){if(chRows[i].price&&chRows[i].q){chT+=chRows[i].price*chRows[i].q;chC+=chRows[i].q;}}
+  for(var i=0;i<plRows.length;i++){if(plRows[i].price&&plRows[i].q){plT+=plRows[i].price*plRows[i].q;plC+=plRows[i].q;}}
+  if(epC)h+='<tr><td>EP</td><td>'+epC+'장</td>'+(ADM?'<td>'+fm(epT)+'원</td>':'')+'</tr>';
+  if(chC)h+='<tr><td>ㄴ목찬넬</td><td>'+chC+'개</td>'+(ADM?'<td>'+fm(chT)+'원</td>':'')+'</tr>';
+  if(plC)h+='<tr><td>PL</td><td>'+plC+'장</td>'+(ADM?'<td>'+fm(plT)+'원</td>':'')+'</tr>';
+  h+='</table>';
+  if(tc>0){
+    if(ADM){h+='<div class="sum-row" style="margin-top:10px"><span>원가 합계</span><b>'+fm(tc)+' 원</b></div>';h+='<div class="sum-row"><span>판매가 (마진 '+gv('gMg')+'%)</span><b>'+fm(sp)+' 원</b></div>';}
+    else h+='<div class="sum-row" style="margin-top:10px"><span>공급가</span><b>'+fm(sp)+' 원</b></div>';
+    h+='<div class="sum-row"><span>부가세 10%</span><b>'+fm(vat)+' 원</b></div>';
+    h+='<div class="sum-total"><div class="stl">최종 견적금액</div><div class="stv">'+fm(sp+vat)+' 원</div></div>';
+  }
+  sm.innerHTML=h;
+}
+
+function renderAll(){renderUnits('upper');renderUnits('lower');renderUnits('tall');renderUnits('open');renderMats();calcOnly();}
+
+/* ══════ T 객체 ══════ */
+var _lk=0;function gd(){var n=Date.now();if(n-_lk<200)return true;_lk=n;return false;}
+var T={
+  login:function(){doLogin();},
+  logout:function(){if(gd())return;document.getElementById('setM').classList.remove('show');document.getElementById('app').style.display='none';document.getElementById('LS').classList.remove('hide');document.getElementById('lpw').value='';document.getElementById('lerr').textContent='';ADM=false;},
+  up:function(){calcOnly();},
+  addU:function(type){if(gd())return;
+    var u={id:uid++,q:1,w:0};
+    if(type==='upper'){u.dt='swing';u.ds=1;}
+    else if(type==='lower'){u.dt='swing';u.ds=1;u.sub='std';u.drN=3;u.rail='under';}
+    else if(type==='tall'){u.ds=1;u.dc=1;u.sub='std';}
+    else if(type==='open'){u.sN=0;u.sMat='body';}
+    UL[type].push(u);renderUnits(type);calcOnly();},
+  delU:function(type,id){if(gd())return;UL[type]=UL[type].filter(function(u){return u.id!==id;});renderUnits(type);calcOnly();},
+  uv:function(type,id,key,val){
+    var u=getU(type,id);if(!u)return;
+    if(key==='q'||key==='w'||key==='ds'||key==='dc'||key==='drN') u[key]=parseInt(val)||0;
+    else u[key]=val;
+    if(key==='dt'||key==='sub') renderUnits(type);
+    calcOnly();},
+  drA:function(type,id,d){if(gd())return;
+    var u=getU(type,id);if(!u)return;
+    if(type==='open'){u.sN=Math.max(0,(u.sN||0)+d);}
+    else{u.drN=Math.min(4,Math.max(1,(u.drN||3)+d));}
+    renderUnits(type);calcOnly();},
+  addMat:function(t){
+    if(t==='ep')epRows.push({w:0,h:0,q:1,price:0});
+    else if(t==='ch')chRows.push({l:2400,q:1,price:0});
+    else plRows.push({w:0,h:0,q:1,price:0});
+    renderMats();calcOnly();},
+  delMat:function(t,i){
+    if(t==='ep')epRows.splice(i,1);else if(t==='ch')chRows.splice(i,1);else plRows.splice(i,1);
+    renderMats();calcOnly();},
+  setOpen:function(){if(gd())return;document.getElementById('sA').value=PWA;document.getElementById('sS').value=PWS;document.getElementById('smsg').textContent='';document.getElementById('smsg').className='mmsg';document.getElementById('setM').classList.add('show');},
+  setClose:function(){if(gd())return;document.getElementById('setM').classList.remove('show');},
+  setSave:function(){if(gd())return;var a=document.getElementById('sA').value.trim(),s=document.getElementById('sS').value.trim(),m=document.getElementById('smsg');if(!a||!s){m.textContent='비밀번호를 입력하세요';m.className='mmsg err';return;}if(a.length<4||s.length<4){m.textContent='4자리 이상 입력';m.className='mmsg err';return;}if(a===s){m.textContent='동일 비밀번호 불가';m.className='mmsg err';return;}PWA=a;PWS=s;m.textContent='저장 완료';m.className='mmsg ok';toast('비밀번호 변경 완료');},
+  clear:function(){if(gd())return;document.getElementById('cfm').classList.add('show');},
+  cfmN:function(){if(gd())return;document.getElementById('cfm').classList.remove('show');},
+  cfmY:function(){if(gd())return;document.getElementById('cfm').classList.remove('show');
+    ['wW','wD','wH','uD','uH','lD','lH','tD','tH','oD','oH'].forEach(function(id){document.getElementById(id).value='';});
+    UL={upper:[],lower:[],tall:[],open:[]};epRows=[];chRows=[];plRows=[];renderAll();toast('초기화 완료');},
+  print:function(){if(gd())return;window.print();}
+};
+document.getElementById('lpw').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+setTimeout(function(){document.getElementById('lpw').focus();},300);
+</script>
+</body>
+</html>
